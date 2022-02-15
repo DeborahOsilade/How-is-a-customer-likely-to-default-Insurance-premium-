@@ -1,4 +1,4 @@
-# User Behaviour Prediction - Insurance premium default - R programming
+# How is a customer likely to default Insurance premium?
 Identifying Insurance Premium Payment Defaulters: Designing a strategy that a customer will default the premium payment, so that the insurance agent can proactively reach out to the policy holder to follow up for the payment of premium.
 ## In this project I,
 1. Designed a pipeline that identifies that customer will default the premium payments.
