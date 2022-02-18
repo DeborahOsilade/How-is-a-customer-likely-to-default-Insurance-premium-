@@ -1,42 +1,28 @@
----
-title: "insurance"
-author: "Deborah"
-date: "19/08/2020"
-output: pdf_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 #libraries
-```{r}
+
 library(dplyr)
 library(DataExplorer)
 library(janitor)
 library(MASS)
 library(summarytools)
-```
 
 #changing the class to a dataframe
-```{r}
 colnames(Insurance_Premium)
 class(Insurance_Premium)
 Insurance_Premium <- as.data.frame(Insurance_Premium) #making the dataset a dataframe
-```
 
 #renaming variables
-```{r}
 new_vars <- c("id","Premuim_%_by_cash","Age_of_customer", "income", "late in 3-6 months","late in 6-12 months","late more than 12 months","marital_status", "veh_owned" , "no_of_dep", "accomodation", "risk_score",
              "no_of_premiums_paid","sourcing_channel" ,"residence_area_type" ,"total_premium", "default")
 
 colnames(Insurance_Premium) <- new_vars
 colnames(Insurance_Premium)
 Insurance_Premium <- clean_names(Insurance_Premium)
-```
 
-#Changing the structure of variables
-```{r}
+
+##Changing the structure of variables
+
 Insurance_Premium$marital_status  <-  as.factor(Insurance_Premium$marital_status)
 Insurance_Premium$veh_owned <-  as.factor(Insurance_Premium$veh_owned)
 Insurance_Premium$default <-  as.factor(Insurance_Premium$default)
@@ -47,70 +33,69 @@ Insurance_Premium$sourcing_channel<-  as.factor(Insurance_Premium$sourcing_chann
 Insurance_Premium$late_in_3_6_months  <-  as.factor(Insurance_Premium$late_in_3_6_months) # better off as factor variables
 Insurance_Premium$late_in_6_12_months <-  as.factor(Insurance_Premium$late_in_6_12_months)
 Insurance_Premium$late_more_than_12_months<-  as.factor(Insurance_Premium$late_more_than_12_months)
-```
+
 
 #Attaching the variables 
-```{r}
+
 str(Insurance_Premium)
 attach(Insurance_Premium)
-```
+
 
 #Checking for missing value 
-```{r}
+
 plot_intro(Insurance_Premium) # 59% discrete columns ,41% continuous, all rows are complete, no missing values 
 View(dfSummary(Insurance_Premium))
-```
+
 
 #finding the total no of default 
-```{r}
+
 sum(default=='1') #74855
 sum(default=='1') / 79853 * 100 # 93% of people are non defaulters
 sum(default=='0') #4998
 sum(default=='0') /79853 * 100 # 6% of customers are defaulters
-```
+
 
 #transforming age of customer
-```{r}
+
 Insurance_Premium$age_of_customer <- Insurance_Premium$age_of_customer/365 #divide by 365 to get the age in years 
 head(Insurance_Premium,10)
 Insurance_Premium$age_of_customer <-  round(Insurance_Premium$age_of_customer) #change the decimals to whole numbers
-```
+
 
 #rounding up risk score 
-```{r}
+
 Insurance_Premium$risk_score <- round(Insurance_Premium$risk_score)
 head(Insurance_Premium,10)
-```
+
 
 #Creating a new variable (Cash_payments)
-```{r}
+
 cash_payments <- premuim_percent_by_cash * 100 * total_premium
 View(cash_payments)
 summary(cash_payments)
-```
+
 
 #breaking scientific number 
-```{r}
+
 summary(Insurance_Premium)
 options(scipen = 999)
-```
+
 
 #adding cash payments to the dataset 
-```{r}
+
 Insurance_Premium <- cbind(Insurance_Premium,cash_payments) # making cash payments a new variable 
 View(Insurance_Premium)
-```
+
 
 
 #Univarte analysis
 
-```{r}
 library(ggplot2)
 library(ggpubr)
-```
+
 
 #histogram
-```{r}
+
 a1 <- ggplot(Insurance_Premium,aes(age_of_customer)) +geom_histogram( fill="white",colour="black")+ ggtitle("Age of customer")
 
 i1 <-ggplot(Insurance_Premium,aes(income)) + geom_histogram(fill= "white", colour= "black") + ggtitle("Histogram of Income")
@@ -123,16 +108,16 @@ r1 <- ggplot(Insurance_Premium,aes(risk_score)) + geom_histogram(fill= "white", 
 
 c1 <- ggplot(Insurance_Premium,aes(Cash_payments)) + geom_histogram(fill= "white", colour= "black") + ggtitle("Histogram of Cash payment")
 
-```
 
-```{r}
+
+
 figure_A <- ggarrange(a1,i1,tp1,np1,r1,c1,ncol=3, nrow= 2)
 figure_A
 ggsave(figure_A, file ="plot.png")
-```
+
 
 #boxplots 
-```{r}
+
 a2 <- ggplot(Insurance_Premium,aes(age_of_customer )) + geom_boxplot() + ggtitle("Boxplot of age")
 i2 <- ggplot(Insurance_Premium,aes(income)) + geom_boxplot() + ggtitle("Boxplot of Income")
 tp2 <- ggplot(Insurance_Premium,aes(total_premium )) + geom_boxplot() + ggtitle("boxplot of premuim")
@@ -140,16 +125,15 @@ p2 <-ggplot(Insurance_Premium,aes(no_of_premiums_paid)) + geom_boxplot(fill= "wh
 r2 <- ggplot(Insurance_Premium,aes(risk_score)) + geom_boxplot() + ggtitle("Boxplot of risk")
 c2 <- ggplot(Insurance_Premium,aes(Cash_payments)) + geom_boxplot() + ggtitle("cash payments")
 
-```
 
-```{r}
+
 figure_B <- ggarrange(a2,i2,tp2,p2,r2,c2,ncol=3, nrow= 2)
 figure_B
 ggsave(figure_B, file ="plot.png")
-```
+
 
 #Factor variables 
-```{r}
+
 sc <- ggplot(Insurance_Premium,aes(sourcing_channel)) +geom_bar(fill="dark green",colour ="black") + ggtitle("How customers are sourced")
 
 df <- ggplot(Insurance_Premium,aes(default)) +geom_bar(fill="dark green",colour ="black") + ggtitle("Default or not")
@@ -170,29 +154,28 @@ veh <- ggplot(Insurance_Premium,aes(veh_owned)) +geom_bar(fill="dark green",colo
 
 rt <- ggplot(Insurance_Premium,aes(residence_area_type)) +geom_bar(fill="dark green",colour ="black") + ggtitle("Residence area")
 
-```
 
-```{r}
+
 figure_c <- ggarrange(sc,df,ms,lt,lp,lg,ncol=3, nrow= 2)
 figure_c
 ggsave(figure_c, file ="plot.png")
-```
 
-```{r}
+
+
 figure_d <- ggarrange(nd,acc,veh,rt,ncol=2, nrow= 2)
 figure_d
 ggsave(figure_d, file ="plot.png")
-```
+
 
 #correlation
-```{r}
+
 plot_correlation(Insurance_Premium, maxcat = 3)
-```
+
 
 
 #Bivirate analysis
 
-```{r}
+
 ps <-ggplot(Insurance_Premium,aes(x=total_premium,y=sourcing_channel, 
       colour= sourcing_channel))+geom_boxplot()+ ggtitle("Total premium paid per sourcing channel")
 
@@ -204,10 +187,10 @@ dfs <-ggplot(Insurance_Premium, aes(x= default , y= sourcing_channel, colour= de
 it <- ggplot(Insurance_Premium, aes(x= income, y= total_premium, colour= income)) + geom_point()+ ggtitle("who pays more premium")
 
 air <- ggplot(Insurance_Premium, aes(x= income, y= age_of_customer,colour= age_of_customer)) + geom_line() + ggtitle("who earns more")
-```
 
 
-```{r}
+
+
 lrs <- ggplot(Insurance_Premium,aes(x=late_in_3_6_months, y= risk_score,colour = default)) + geom_point() + ggtitle("risk score & 3-6 month late")
 
 rsl <-ggplot(Insurance_Premium,aes(x= late_in_6_12_months, y= risk_score,colour= default))+ geom_point() + 
@@ -221,62 +204,60 @@ rsc <- ggplot(Insurance_Premium,aes(x= sourcing_channel, y = risk_score, colour 
 
 prs<-ggplot(Insurance_Premium,aes(x=total_premium,y= age_of_customer,colour= default))+geom_point()+ ggtitle("are younger people likely to default")
 agd <- prs+geom_point() + stat_smooth(method = lm)
-```
 
-```{r}
+
 figure_e <- ggarrange(npa,dfs,it,air,lrs,rsl,ncol=2, nrow= 3)
 figure_e
 ggsave(figure_d, file ="plot.png")
-```
 
-```{r}
+
 figure_f <- ggarrange(rs12,cpp,rsc,agd,ncol=2, nrow= 2)
 figure_f
 ggsave(figure_d, file ="plot.png")
-```
+
 
 
 #income 
-```{r}
+
 var(income) #variance is 246594275899
 sd(income)  # sd is 496582.6
 Range_of_income<-max(income) - min(income) #90238570
 quantile(income,c(0.01,0.02,0.03,0.1,0.2,0.3,0.4,0.50,0.6,0.7,0.8,0.9,0.95,0.99,1))
 income[which(income >771078)] <- 771078
 qqnorm(income) + qqline(income)
-```
+
 
 #total premium
-```{r}
+
 var(total_premium) #var is 88391522
 sd(total_premium) # sd is 9401.677
 max(total_premium) - min(total_premium) #58800
 quantile(total_premium ,c(0.01,0.02,0.03,0.1,0.2,0.3,0.4,0.50,0.6,0.7,0.8,0.9,0.95,0.99,1))
 total_premium[which(total_premium >51600)] <-51600
 qqnorm(total_premium) + qqline(total_premium)
-```
+
 
 #no of premium paid
-```{r}
+
 var(no_of_premiums_paid) #var is 26.73601
 sd(no_of_premiums_paid)  #sd is 5.170687
 qqnorm(no_of_premiums_paid)
 quantile(no_of_premiums_paid ,c(0.01,0.02,0.03,0.1,0.2,0.3,0.4,0.50,0.6,0.7,0.8,0.9,0.95,0.99,1))
 no_of_premiums_paid[which(no_of_premiums_paid > 27)] <- 27
-```
+
 
 #risk score 
-```{r}
+
 var(risk_score) #0.6444161
 sd(risk_score) #0.8027553
 max(risk_score) - min(risk_score) #8
 quantile(risk_score,c(0.01,0.02,0.03,0.1,0.2,0.3,0.4,0.50,0.6,0.7,0.8,0.9,0.95,0.99,1))
 qqnorm(risk_score) 
 qqline(risk_score)
-```
+
 
 #cash payments
-```{r}
+
 var(Cash_payments) 
 sd(Cash_payments) 
 max(Cash_payments) - min(Cash_payments) 
@@ -284,10 +265,10 @@ quantile(cash_payments,c(0.01,0.02,0.03,0.1,0.2,0.3,0.4,0.50,0.6,0.7,0.8,0.9,0.9
 cash_payments[which(cash_payments>2430000 )] <- 2430000 
 qqnorm(Cash_payments) 
 qqline(Cash_payments)
-```
+
 
 #Binning Variables
-```{r}
+
 str(Insurance_Premium)
 levels(Insurance_Premium$late_in_3_6_months)
 levels(Insurance_Premium$late_in_3_6_months)[1] <- "never late" 
@@ -295,95 +276,83 @@ levels(Insurance_Premium$late_in_3_6_months)[2:4] <- "unpunctual"
 levels(Insurance_Premium$late_in_3_6_months)[3:5] <- "delays" 
 levels(Insurance_Premium$late_in_3_6_months)[4:6] <- "long delayed"
 levels(Insurance_Premium$late_in_3_6_months)[5:8] <- "behind time" 
-```
 
-```{r}
+
 levels(Insurance_Premium$late_in_6_12_months)
 levels(Insurance_Premium$late_in_6_12_months)[1] <- "never late" 
 levels(Insurance_Premium$late_in_6_12_months)[2:6] <- "unpunctual" 
 levels(Insurance_Premium$late_in_6_12_months)[3:5] <- "delays" 
 levels(Insurance_Premium$late_in_6_12_months)[4:7] <- "long delayed"
 levels(Insurance_Premium$late_in_6_12_months)[5:8] <- "behind time"
-```
 
-```{r}
+
+
 levels(Insurance_Premium$late_more_than_12_months)
 levels(Insurance_Premium$late_more_than_12_months)[1] <- "never late" 
 levels(Insurance_Premium$late_more_than_12_months)[2:3] <- "unpunctual" 
 levels(Insurance_Premium$late_more_than_12_months)[3:4] <- "delays" 
 levels(Insurance_Premium$late_more_than_12_months)[4:5] <- "long delayed"
 levels(Insurance_Premium$late_more_than_12_months)[5:7] <- "behind time"
-```
+
 #dropping variables 
-```{r}
+
 Insurance_Premium <- Insurance_Premium[-c(1)]
 str(Insurance_Premium)
-```
 
 
-
-```{r}
 library(Information)
-```
 
-```{r}
+
 Insurance_Premium$default <- as.numeric(Insurance_Premium$default)
 str(Insurance_Premium)
-```
 
 
-```{r}
+
 Insurance_Premium$default  <- recode(Insurance_Premium$default,"2"= 1L ,"1" =0L)
 InformationValue <- create_infotables(data=Insurance_Premium, y="default", bins= 20, parallel=TRUE)
-```
 
-```{r}
+
 IV_Value = data.frame(InformationValue$Summary)
 InformationValue
-```
+
 
 
 #using the woe to treat outliers
-```{r}
+
 library(scorecard)
 data_filter = var_filter(Insurance_Premium, y="default")
-```
 
-```{r}
+
 bins1 = woebin(data_filter , y="default")
-```
-```{r}
+
+
 bins1$premuim_percent_by_cash
-```
+
 
 
 #replacing dataset 
-```{r}
+
 Insurance_Premium1 <- woebin_ply(Insurance_Premium,bins1)
 View(Insurance_Premium1)
 library(DataExplorer)
-```
+
 
 #plotting the new data
-```{r}
+
 boxplot(Insurance_Premium1)
 plot_boxplot(Insurance_Premium1, by = "default")
-```
+
 
 #correlation
-```{r}
+
 plot_correlation(Insurance_Premium1, maxcat = 1)
-```
 
 
 
-```{r}
 levels(Insurance_Premium$residence_area_type) <- c("0", "1")
 levels(Insurance_Premium$sourcing_channel) <- c("1", "2","3","4","5")
-```
 
 
-```{r}
 library(caTools)
 set.seed(129)
 index <- sample.split(Insurance_Premium, SplitRatio = 0.80)
@@ -397,20 +366,20 @@ levels(insur.clust$residence_area_type)
 
 insur.clust$residence_area_type <- as.numeric(insur.clust$residence_area_type)
 insur.clust$sourcing_channel<- as.numeric(insur.clust$sourcing_channel)
-```
+
 
 
 #split dataset 
-```{r}
+
 library(caTools)
 library(xgboost)
 library(DMwR)
 library(caret)
 library(gbm)
-```
+
 
 # Ensure that the target variable is a factor & Rename the levels & Relevel
-```{r}
+
 levels(Insurance_Premium$residence_area_type) <- c("Rural", "Urban")
 levels(Insurance_Premium$sourcing_channel) <- c("A", "B","C","D","E") 
 
@@ -421,10 +390,8 @@ levels(Insurance_Premium$default)
 levels(Insurance_Premium$default) <- c("yes", "no")
 Insurance_Premium$default<- relevel(Insurance_Premium$default, ref = "yes") # Reference class : 0
 
-```
 
 #clustering
-```{r}
 
 # ** All the columns values are on the same scale therefore scaling not required 
 insurance.Scaled = scale(Insurance_Premium[,1:16])
@@ -435,28 +402,23 @@ Thera_bank_distance = dist(x=insur.clust, method = "euclidean")
 sum(is.na(insur.clust))
 print(Thera_bank_distance, digits = 3)
 
-```
 
-```{r}
 library(cluster)
 library(factoextra)
 fviz_nbclust(insur.clust,pam,method = "silhouette") + theme_classic
 nc<- clara(insur.clust,2,metric="manhattan",stand = FALSE, samples = 5,pamLike = FALSE)
 nc
  fviz_cluster(nc)
-```
 
-```{r}
+
 table(Insurance_Premium$default)
 sdf <- SMOTE(default ~ ., Insurance_Premium)
 table(sdf$default)
 Carsdf <- rbind(Insurance_Premium,sdf)
 table(Carsdf$default)
-```
 
 
 #divide data into train and test 
-```{r}
 # Divide data in "70:30"
 set.seed(100)
 
@@ -475,10 +437,9 @@ table(train_premium_data$default) # 0 - 3469 , 1 - 52428 on the train set
 
 table(test_premium_data$default) # 0 - 1529 , 1 - 22427 on the test set 
 
-```
 
 # Setting up the general parameters for training multiple models
-```{r}
+
 # Define the training control
 fitControl <- trainControl(
               method = 'repeatedcv',           # k-fold cross validation
@@ -488,26 +449,20 @@ fitControl <- trainControl(
               classProbs = TRUE,
               summaryFunction=twoClassSummary# should class probabilities be returned
     ) 
-```
 
 
 #Setting the control parameters
-```{r}
 library(rpart)
 insurance_ctrl_parameter = rpart.control(minsplit=100, minbucket = 20, cp = 0.0021 , xval = 20,trControl = fitControl)
 
-```
-
 
 #model 1 Building the CART model
-```{r}
+
 insurance_Cart_Model2<- rpart(formula = default~., data = train_premium_data, 
                          method = "class",control = insurance_ctrl_parameter)
 
-```
 
 
-```{r}
 insurance_Cart_Model<- train(default ~ ., data = train_premium_data,
                      method = "rpart",
                      minbucket = 100,
@@ -516,35 +471,27 @@ insurance_Cart_Model<- train(default ~ ., data = train_premium_data,
                      trControl = fitControl)
 
 
-```
-
-
 #plotting cart model 
-```{r}
 
 library(rattle)
 fancyRpartPlot(insurance_Cart_Model2, cex= 0.6)
 fancyRpartPlot(insurance_Cart_Model$finalModel,digits = 5 )
 plot(insurance_Cart_Model)
 varImp(insurance_Cart_Model2)
-```
 
 
-```{r}
 library(caret)
 cart_predictions_test <- predict(insurance_Cart_Model2, newdata = test_premium_data, type = "class")
 confusionMatrix(as.factor(cart_predictions_test),as.factor(test_premium_data$default))
-```
 
-```{r}
+
 library(caret)
 cart_predictions_train <- predict(insurance_Cart_Model, newdata = train_premium_data, type = "class")
 confusionMatrix(as.factor(cart_predictions_train),as.factor(train_premium_data$default))
-```
 
 
 #Randomforests model
-```{r}
+
 set.seed(100)
 
 library(randomForest)
@@ -568,11 +515,10 @@ varImpPlot(insurance_rndForest,type=2)
 
 plot(importance(insurance_rndForest))
 plot(insurance_rndForest)  
-```
 
 
 #checking model performance using ROC Curve
-```{r}
+
 rf_predictions_prob <- predict(insurance_rndForest, newdata = test_premium_data, type = "raw")
 
 # Creating the prediction object using ROCR library
@@ -592,22 +538,17 @@ plot(precision_recall_rf, xlab = "Recall", ylab = "Precision",colorize=TRUE)
 auc = performance(rf_pred_obj,"auc"); 
 auc = as.numeric(auc@y.values)
 auc
-```
 
 
-```{r}
 library(caret)
 rd_predictions_test <- predict(insurance_rndForest, newdata = test_premium_data, type = "class")
 confusionMatrix(as.factor(rd_predictions_test),as.factor(test_premium_data$default))
-```
 
-```{r}
 library(caret)
 rd_predictions_train <- predict(insurance_rndForest, newdata = train_premium_data, type = "class")
 confusionMatrix(as.factor(rd_predictions_train),as.factor(train_premium_data$default))
-```
 
-```{r}
+
 lr_model <- train(default~., data = train_premium_data,
                  method = "glm",
                  family = "binomial",trControl = fitControl)
@@ -617,10 +558,9 @@ lr_model <- train(default~., data = train_premium_data,
 summary(lr_model)
 plot(varImp(lr_model, main = lr_model))
 
-```
 
 ====================  CHECK_PERFORMANCE : USING_ROC_&_PR_CURVES  ==================
-```{r}
+
 lr_predictions_prob <- predict(lr_model, newdata = test_premium_data, type = "raw")
 
 # Creating the prediction object using ROCR library
@@ -641,50 +581,43 @@ plot(precision_recall_LR, xlab = "Recall", ylab = "Precision",colorize=TRUE)
 auc = performance(lr_pred_obj,"auc"); 
 auc = as.numeric(auc@y.values)
 auc
-```
 
 =============================  CHECK_PERFORMANCE : USING_CONFUSION_MATRIX  =================
-```{r}
+
 library(caret)
 lr_predictions_test <- predict(lr_model, newdata = test_premium_data, type = "raw")
 confusionMatrix(as.factor(lr_predictions_test),as.factor(test_premium_data$default))
-```
 
-```{r}
+
 library(caret)
 lr_predictions_train <- predict(lr_model, newdata = train_premium_data, type = "raw")
 confusionMatrix(as.factor(lr_predictions_train),as.factor(train_premium_data$default))
-```
 
-```{r}
+
 table(as.factor(train_premium_data$default),as.factor(lr_predictions_train))
-```
+
 
 
 # Gradient Boosting Machines 
-```{r}
+
 gbm_model <- train(default ~ ., data = train_premium_data,
                      method = "gbm",
                      verbose = FALSE,
                   trControl = fitControl)
-```
 
-```{r}
 library(caret)
 gbm_predictions_test <- predict( gbm_model, newdata = test_premium_data, type = "raw")
 confusionMatrix(as.factor(gbm_predictions_test),as.factor(test_premium_data$default))
-```
 
 
-```{r}
 library(caret)
 gbm_predictions_train <- predict( gbm_model, newdata = train_premium_data, type = "raw")
 confusionMatrix(as.factor(gbm_predictions_train),as.factor(train_premium_data$default))
-```
+
 
  
 # Xtreme Gradient boosting Machines 
-```{r}
+
 
 fitControl <- trainControl(
               method = 'repeatedcv',           # k-fold cross validation
@@ -712,43 +645,39 @@ fitControl <- trainControl(
                      verbose=T,
                      nthread = 2
     )
-```
 
-```{r}
 plot(xgb_model)
 plot(varImp(xgb_model))
-```
 
 
-```{r}
+
 library(caret)
 gb_predictions_test <- predict( xgb_model, newdata = test_premium_data, type = "raw")
 confusionMatrix(as.factor(gb_predictions_test),as.factor(test_premium_data$default))
-```
 
 
-```{r}
+
+
 library(caret)
 gb_predictions_train <- predict( xgb_model, newdata = train_premium_data, type = "raw")
 confusionMatrix(as.factor(gb_predictions_train),as.factor(train_premium_data$default))
-```
 
 
 #model comparison
-```{r}
+
 # Compare model performances using resample()
 models_to_compare <- resamples(list(logistic_Regression= lr_model, DecisionTree= insurance_Cart_Model, Extreme_Gradient_Boosting =xgb_model,randomForest = insurance_rndForest ))
 
 # Summary of the models performances
 summary(models_to_compare)
-```
+
 
 
 # Draw box plots to compare models
-```{r}
+
 scales <- list(x=list(relation="free"), y=list(relation="free"))
 bwplot(models_to_compare, scales=scales)
 
 
-```
+
  
